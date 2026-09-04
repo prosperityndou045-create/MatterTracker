@@ -12,11 +12,8 @@
 
 import SwiftUI
 
-// MARK: - Palette
-// If you already have colors defined in Colours.swift, delete this block
-// and reference those instead (just make sure they're not marked `private`
-// there, or this file won't be able to see them).
-private extension Color {
+
+extension Color {
     static let matterNavy      = Color(red: 0.10, green: 0.16, blue: 0.28)
     static let matterOrange    = Color(red: 0.92, green: 0.42, blue: 0.20)
     static let matterOrangeDk  = Color(red: 0.75, green: 0.28, blue: 0.12)
@@ -247,7 +244,7 @@ struct SignInPage: View {
     private var destinationView: some View {
         switch selectedRole {
         case .student:
-            StudentProfileView()
+            StudentProfileView(student: Student(name: "Chapo", email: "chapo@example.com", progress: 40, skillsCompleted: 2, totalSkills: 5))
         case .facilitator, .manager, .guest:
             DashboardView()   // swap in FacilitatorDashboardView / ManagerDashboardView once you create them
         }

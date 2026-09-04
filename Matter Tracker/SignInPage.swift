@@ -48,7 +48,7 @@ enum UserRole: String, CaseIterable, Identifiable {
 
 struct SignInPage: View {
     @State private var selectedRole: UserRole = .student
-    @State private var username: String = ""
+    @State private var email: String = ""
     @State private var password: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var navigate = false
@@ -56,7 +56,7 @@ struct SignInPage: View {
     private var isGuest: Bool { selectedRole == .guest }
     
     private var canSubmit: Bool {
-        isGuest || (!username.isEmpty && !password.isEmpty)
+        isGuest || (!email.isEmpty && !password.isEmpty)
     }
     
     var body: some View {
@@ -123,20 +123,21 @@ struct SignInPage: View {
                         if !isGuest {
                             // UserName
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("UserName")
+                                Text("Email")
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundColor(.white)
                                 
                                 HStack(spacing: 10) {
-                                    Image(systemName: "person.fill")
+                                    Image(systemName: "envelope.open")
                                         .foregroundColor(.white.opacity(0.6))
                                     TextField(
                                         "",
-                                        text: $username,
-                                        prompt: Text("e.g. lennon@gmail.com")
+                                        text: $email,
+                                        prompt: Text("e.g chapo@example.com")
                                             .foregroundColor(.placeholderGray)
+                                        
                                     )
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.placeholderGray)
                                     .keyboardType(.emailAddress)
                                     .autocorrectionDisabled(true)
                                     .textInputAutocapitalization(.never)
@@ -224,11 +225,20 @@ struct SignInPage: View {
                     .padding(.horizontal, 28)
                     
                     if !isGuest {
-                        NavigationLink("Don't have an account? Sign Up") {
+                        NavigationLink {
                             SignUpPage()
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("Don't have an account?")
+                                    .foregroundColor(.white.opacity(0.6))
+                                
+                                Text("Sign Up")
+                                    .foregroundColor(.blue)
+                                    .underline()
+                            }
+                            .font(.system(size: 13, weight: .medium))
                         }
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
+                        .buttonStyle(.plain)
                         .padding(.top, 18)
                     }
                     

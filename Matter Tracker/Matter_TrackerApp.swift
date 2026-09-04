@@ -8,10 +8,12 @@
 import SwiftUI
 
 @main
-struct Matter_TrackerApp: App {
+struct MatterTrackerApp: App {
     var body: some Scene {
         WindowGroup {
-            WelcomePage()
+            NavigationStack {
+                WelcomePage()
+            }
         }
     }
 }

@@ -76,7 +76,7 @@ struct SignUpPage: View {
                             title: "Full Name",
                             icon: "person.fill",
                             text: $fullName,
-                            placeholder: "e.g Chapo",
+                            placeholder: "e.g Mhuka Huru",
                             autocap: .words
                         )
 

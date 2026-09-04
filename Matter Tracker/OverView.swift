@@ -57,63 +57,26 @@ struct OverviewView: View {
                 
                 Divider()
                 
-                
                 // MARK: - Why Evidence Matters
-                
+
                 Button {
                     showEvidenceInfo = true
                 } label: {
-                    VStack(alignment: .leading, spacing: 12) {
-                        
-                        Text("WHY EVIDENCE MATTERS")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .tracking(1.5)
-                            .foregroundStyle(.primary)
-                        
-                        Text("Skills are stronger when they can be demonstrated.")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
-                        
-                        Text("""
-                        Students connect their skills to real work,
-                        challenges, projects, assessments, videos
-                        and facilitator feedback.
-                        """)
-                        .foregroundStyle(.secondary)
-                        
-                        HStack {
-                            Spacer()
-                            
-                            Text("Learn more")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                        }
-                        .foregroundStyle(.primary)
-                    }
-                    .frame(
-                        maxWidth: .infinity,
-                        alignment: .leading
-                    )
-                    .padding()
-                    .background(
-                        Color.secondary.opacity(0.08)
-                    )
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: 16
+                    Text("WHY EVIDENCE MATTERS")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.black)
+                        .foregroundStyle(Color.white)
+                        .clipShape(
+                            RoundedRectangle(
+                                cornerRadius: 12
+                            )
                         )
-                    )
                 }
                 .buttonStyle(.plain)
                 .sheet(isPresented: $showEvidenceInfo) {
                     EvidenceInfoSheet()
                 }
-                
                 
                 // MARK: - Evidence Types
                 

@@ -1,3 +1,11 @@
+//
+//  FacilitatorDashboardView.swift
+//  Matter Tracker
+//
+//  Created by Prosperity on 5/9/2026.
+//
+
+
 import SwiftUI
 
 // MARK: - Facilitator Dashboard
@@ -6,32 +14,32 @@ struct FacilitatorDashboardView: View {
     
     var body: some View {
         
-        // NavigationStack allows us to navigate
-        // from the dashboard to other pages.
+        
         NavigationStack {
             
             ScrollView {
                 
                 VStack(alignment: .leading, spacing: 20) {
                     
-                    // MARK: Header
-                    
-                    Text("Facilitator Dashboard")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
                     
                     Text("Monitor and support your assigned students.")
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.gray)
                     
                     
-                    // MARK: Dashboard Summary
+                    // MARK: - Summary Cards
                     
-                    HStack(spacing: 15) {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ],
+                        spacing: 15
+                    ) {
                         
                         DashboardCard(
                             title: "Students",
                             value: "24",
-                            icon: "person.3.fill"
+                            icon: "person.2.fill"
                         )
                         
                         DashboardCard(
@@ -39,10 +47,6 @@ struct FacilitatorDashboardView: View {
                             value: "8",
                             icon: "clock.fill"
                         )
-                    }
-                    
-                    
-                    HStack(spacing: 15) {
                         
                         DashboardCard(
                             title: "Completed",
@@ -58,73 +62,45 @@ struct FacilitatorDashboardView: View {
                     }
                     
                     
-                    // MARK: Quick Actions
+                    // MARK: - Quick Actions
                     
-                    Text("Quick Actions")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .padding(.top, 10)
-                    
-                    
-                    // MARK: Assigned Students
-                    
-                    NavigationLink {
+                    VStack(alignment: .leading, spacing: 12) {
                         
-                        // This is the page that opens
-                        // when the facilitator taps
-                        // "Assigned Students".
-                        AssignedStudentsView()
-                        
-                    } label: {
-                        
-                        DashboardRow(
-                            title: "Assigned Students",
-                            subtitle: "View and manage your students",
-                            icon: "person.2.fill"
-                        )
-                    }
+                        Text("Quick Actions")
+                            .font(.title2)
+                            .fontWeight(.bold)
                     
-                    
-                    // MARK: Pending Evidence
-                    
-                    NavigationLink {
                         
-                        EvidenceReviewView()
+                        NavigationLink {
+                            AssignedStudentsView()
+                        } label: {
+                            
+                            DashboardRow(
+                                title: "Assigned Students",
+                                subtitle: "View and manage your students",
+                                icon: "person.2.fill"
+                            )
+                        }
                         
-                    } label: {
                         
-                        DashboardRow(
-                            title: "Pending Evidence",
-                            subtitle: "Review student submissions",
-                            icon: "doc.text.fill"
-                        )
-                    }
-                    
-                    
-                    // MARK: Student Progress
-                    
-                    NavigationLink {
-                        
-                        StudentProgressView()
-                        
-                    } label: {
-                        
-                        DashboardRow(
-                            title: "Student Progress",
-                            subtitle: "Monitor student development",
-                            icon: "chart.line.uptrend.xyaxis"
-                        )
+                        NavigationLink {
+                            EvidenceReviewView(skill: Skill(name: "Communication Presentation", description: "Student presented a topic to the group", status: "Pending Review"))
+                        } label: {
+                            
+                            DashboardRow(
+                                title: "Pending Evidence",
+                                subtitle: "Review submitted evidence",
+                                icon: "doc.text.magnifyingglass"
+                            )
+                        }
                     }
                 }
                 .padding()
             }
-            .navigationTitle("Dashboard")
+            .navigationTitle("Facilitator Dashboard")
         }
     }
 }
-
-
-// MARK: - Dashboard Card
 
 struct DashboardCard: View {
     
@@ -139,16 +115,14 @@ struct DashboardCard: View {
             // Icon
             Image(systemName: icon)
                 .font(.title2)
-            
-            // Number
+            // Main number
             Text(value)
                 .font(.title)
                 .fontWeight(.bold)
             
             // Card title
             Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.gray)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -170,7 +144,7 @@ struct DashboardRow: View {
         
         HStack(spacing: 15) {
             
-            // Icon
+            // Left icon
             Image(systemName: icon)
                 .font(.title2)
                 .frame(width: 45, height: 45)
@@ -186,17 +160,16 @@ struct DashboardRow: View {
                 
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.gray)
             }
             
             
             Spacer()
             
             
-            // Arrow showing that this row
-            // can be opened.
+            // Arrow showing that this row is clickable
             Image(systemName: "chevron.right")
-                .foregroundStyle(.secondary)
+                .foregroundColor(.gray)
         }
         .padding()
         .background(Color(.systemGray6))
@@ -204,32 +177,6 @@ struct DashboardRow: View {
     }
 }
 
-
-// MARK: - Temporary Views
-
-// You can replace these with your actual views later.
-
-struct EvidenceReviewView: View {
-    
-    var body: some View {
-        
-        Text("Evidence Review")
-            .navigationTitle("Evidence")
-    }
-}
-
-
-struct StudentProgressView: View {
-    
-    var body: some View {
-        
-        Text("Student Progress")
-            .navigationTitle("Progress")
-    }
-}
-
-
-// MARK: - Preview
 
 #Preview {
     FacilitatorDashboardView()

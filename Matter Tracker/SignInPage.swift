@@ -2,27 +2,8 @@
 //  SignInPage.swift
 //  Matter Tracker
 //
-//  Created by Prosperity on 4/9/2026.
-//
-
-//
-//  SignInPage.swift
-//  Matter Tracker
-//
 
 import SwiftUI
-
-// MARK: - Palette
-// If you already have colors defined in Colours.swift, delete this block
-// and reference those instead (just make sure they're not marked `private`
-// there, or this file won't be able to see them).
-private extension Color {
-    static let matterNavy      = Color(red: 0.10, green: 0.16, blue: 0.28)
-    static let matterOrange    = Color(red: 0.92, green: 0.42, blue: 0.20)
-    static let matterOrangeDk  = Color(red: 0.75, green: 0.28, blue: 0.12)
-    static let fieldBorder     = Color.white.opacity(0.25)
-    static let placeholderGray = Color.white.opacity(0.45)
-}
 
 // MARK: - Role Model
 
@@ -31,9 +12,9 @@ enum UserRole: String, CaseIterable, Identifiable {
     case facilitator = "Facilitator"
     case manager = "Manager"
     case guest = "Guest"
-    
+
     var id: String { rawValue }
-    
+
     var icon: String {
         switch self {
         case .student: return "graduationcap.fill"
@@ -52,43 +33,45 @@ struct SignInPage: View {
     @State private var password: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var navigate = false
-    
+
     private var isGuest: Bool { selectedRole == .guest }
-    
+
     private var canSubmit: Bool {
         isGuest || (!email.isEmpty && !password.isEmpty)
     }
-    
+
     var body: some View {
         ZStack {
-            Color.matterNavy.ignoresSafeArea()
-            
+            // Same background as WelcomePage / SignUpPage — #153A55
+            Color(hex: "#153A55")
+                .ignoresSafeArea()
+
             ScrollView {
                 VStack(spacing: 0) {
                     Spacer(minLength: 50)
-                    
+
                     // MARK: Logo
                     Image("MatterLogo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 130, height: 100)
-                    
+
                     Text("M A T T E R")
                         .font(.system(size: 19, weight: .semibold))
                         .tracking(6)
                         .foregroundColor(.white.opacity(0.55))
                         .padding(.top, 6)
-                    
+
                     Spacer(minLength: 50)
-                    
+
                     VStack(alignment: .leading, spacing: 22) {
-                        
-                        // Role dropdown on the roles
+
+                        // Role dropdown
                         VStack(alignment: .leading, spacing: 8) {
                             Text("I am a")
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(.white)
-                            
+
                             Menu {
                                 ForEach(UserRole.allCases) { role in
                                     Button {
@@ -119,14 +102,14 @@ struct SignInPage: View {
                                 )
                             }
                         }
-                        
+
                         if !isGuest {
-                            // UserName
+                            // Email
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Email")
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundColor(.white)
-                                
+
                                 HStack(spacing: 10) {
                                     Image(systemName: "envelope.open")
                                         .foregroundColor(.white.opacity(0.6))
@@ -135,9 +118,8 @@ struct SignInPage: View {
                                         text: $email,
                                         prompt: Text("e.g chapo@example.com")
                                             .foregroundColor(.placeholderGray)
-                                        
                                     )
-                                    .foregroundColor(.placeholderGray)
+                                    .foregroundColor(.white)
                                     .keyboardType(.emailAddress)
                                     .autocorrectionDisabled(true)
                                     .textInputAutocapitalization(.never)
@@ -150,13 +132,13 @@ struct SignInPage: View {
                                 )
                             }
                             .transition(.opacity.combined(with: .move(edge: .top)))
-                            
+
                             // Password
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Password")
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundColor(.white)
-                                
+
                                 HStack(spacing: 10) {
                                     Button {
                                         isPasswordVisible.toggle()
@@ -164,7 +146,7 @@ struct SignInPage: View {
                                         Image(systemName: isPasswordVisible ? "eye.fill" : "eye.slash.fill")
                                             .foregroundColor(.white.opacity(0.6))
                                     }
-                                    
+
                                     Group {
                                         if isPasswordVisible {
                                             TextField(
@@ -196,9 +178,9 @@ struct SignInPage: View {
                     }
                     .padding(.horizontal, 28)
                     .animation(.easeInOut(duration: 0.25), value: isGuest)
-                    
+
                     Spacer(minLength: 60)
-                    
+
                     // Sign In / Continue as Guest button
                     Button {
                         // TODO: call ApiService sign-in here for non-guest roles,
@@ -223,7 +205,7 @@ struct SignInPage: View {
                     .disabled(!canSubmit)
                     .opacity(canSubmit ? 1 : 0.5)
                     .padding(.horizontal, 28)
-                    
+
                     if !isGuest {
                         NavigationLink {
                             SignUpPage()
@@ -231,9 +213,9 @@ struct SignInPage: View {
                             HStack(spacing: 4) {
                                 Text("Don't have an account?")
                                     .foregroundColor(.white.opacity(0.6))
-                                
+
                                 Text("Sign Up")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.matterOrange)
                                     .underline()
                             }
                             .font(.system(size: 13, weight: .medium))
@@ -241,7 +223,7 @@ struct SignInPage: View {
                         .buttonStyle(.plain)
                         .padding(.top, 18)
                     }
-                    
+
                     Spacer(minLength: 50)
                 }
             }
@@ -250,9 +232,9 @@ struct SignInPage: View {
             destinationView
         }
     }
-    
+
     // MARK: - Routing
-    
+
     @ViewBuilder
     private var destinationView: some View {
         switch selectedRole {

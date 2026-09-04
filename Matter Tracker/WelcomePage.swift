@@ -2,7 +2,7 @@
 //  WelcomePage.swift
 //  Matter Tracker
 //
-//  Created by Prosperity on 4/9/2026.
+//  Created by TAKUE on 4/9/2026.
 //
 
 import SwiftUI

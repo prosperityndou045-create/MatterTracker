@@ -128,9 +128,9 @@ struct CandidateProfileView: View {
                         
                         NavigationLink {
                             
-                            SkillDetailView(
-                                skill: skill
-                            )
+//                            SkillDetailView(
+//                                skill: skill
+//                            )
                             
                         } label: {
                             
@@ -158,9 +158,9 @@ struct CandidateProfileView: View {
                         
                         NavigationLink {
                             
-                            SkillDetailView(
-                                skill: skill
-                            )
+//                            SkillDetailView(
+//                                skill: skill
+//                            )
                             
                         } label: {
                             
@@ -184,9 +184,9 @@ struct CandidateProfileView: View {
                         
                         NavigationLink {
                             
-                            ProjectDetailView(
-                                project: project
-                            )
+//                            ProjectDetailView(
+//                                project: project
+//                            )
                             
                         } label: {
                             

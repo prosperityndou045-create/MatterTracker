@@ -35,11 +35,11 @@ struct GuestShellView: View {
                 )
             }
             
-            NavigationStack {
-                SkillsFrameworkView(
-                    groups: MockData.skillsFramework
-                )
-            }
+//            NavigationStack {
+//                SkillsFrameworkView(
+//                    groups: MockData.skillsFramework
+//                )
+//            }
             .tabItem {
                 Label(
                     "Skills",
@@ -47,9 +47,9 @@ struct GuestShellView: View {
                 )
             }
             
-            NavigationStack {
-                VerifyView()
-            }
+//            NavigationStack {
+//                VerifyView()
+//            }
             .tabItem {
                 Label(
                     "Verify",

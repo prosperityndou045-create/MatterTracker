@@ -117,9 +117,9 @@ struct OverviewView: View {
                         .tracking(1.5)
                     
                     NavigationLink {
-                        SkillsFrameworkView(
-                            groups: MockData.skillsFramework
-                        )
+//                        SkillsFrameworkView(
+//                            groups: MockData.skillsFramework
+//                        )
                     } label: {
                         
                         ActionRow(
@@ -129,9 +129,9 @@ struct OverviewView: View {
                         )
                     }
                     
-                    NavigationLink {
-                        VerifyView()
-                    } label: {
+//                    NavigationLink {
+//                        VerifyView()
+//                    } label: {
                         
                         ActionRow(
                             icon: "checkmark.seal",
@@ -143,9 +143,9 @@ struct OverviewView: View {
             }
             .padding()
         }
-        .navigationTitle("Overview")
+//        .navigationTitle("Overview")
     }
-}
+//}
 
 struct EvidenceTypeCard: View {
     

@@ -15,6 +15,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				ApiDoc.md,
+				Untitled.swift,
 			);
 			target = F002695C304B3A3100C1B058 /* Matter Tracker */;
 		};

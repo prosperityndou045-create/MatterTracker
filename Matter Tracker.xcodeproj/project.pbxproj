@@ -10,34 +10,10 @@
 		F002695D304B3A3100C1B058 /* Matter Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Matter Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F0026981304B3B1C00C1B058 /* Exceptions for "Matter Tracker" folder in "Matter Tracker" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ApiDoc.md,
-			);
-			target = F002695C304B3A3100C1B058 /* Matter Tracker */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		F0026982304B3B1C00C1B058 /* Exceptions for "Matter Tracker" folder in "Compile Sources" phase from "Matter Tracker" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = F0026959304B3A3100C1B058 /* Sources */;
-			membershipExceptions = (
-				ApiDoc.md,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F002695F304B3A3100C1B058 /* Matter Tracker */ = {
+		84FEA3FA304C43FB00B3DAA5 /* Matter Tracker 2 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				F0026981304B3B1C00C1B058 /* Exceptions for "Matter Tracker" folder in "Matter Tracker" target */,
-				F0026982304B3B1C00C1B058 /* Exceptions for "Matter Tracker" folder in "Compile Sources" phase from "Matter Tracker" target */,
-			);
-			path = "Matter Tracker";
+			path = "Matter Tracker 2";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -56,7 +32,7 @@
 		F0026954304B3A3100C1B058 = {
 			isa = PBXGroup;
 			children = (
-				F002695F304B3A3100C1B058 /* Matter Tracker */,
+				84FEA3FA304C43FB00B3DAA5 /* Matter Tracker 2 */,
 				F002695E304B3A3100C1B058 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F002695F304B3A3100C1B058 /* Matter Tracker */,
+				84FEA3FA304C43FB00B3DAA5 /* Matter Tracker 2 */,
 			);
 			name = "Matter Tracker";
 			packageProductDependencies = (

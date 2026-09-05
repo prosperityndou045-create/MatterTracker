@@ -1,18 +1,18 @@
 //
-//  Progress.swift
+//  ExternalReviewerDashboardView.swift
 //  Matter Tracker
 //
-//  Created by Prosperity on 4/9/2026.
+//  Created by admin on 5/9/2026.
 //
 
 import SwiftUI
 
-struct Progress: View {
+struct ExternalReviewerDashboardView: View {
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 
 #Preview {
-    Progress()
+    ExternalReviewerDashboardView()
 }

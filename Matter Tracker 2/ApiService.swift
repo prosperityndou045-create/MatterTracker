@@ -57,7 +57,7 @@ enum APIError: Error, LocalizedError {
         switch self {
         case .invalidURL: return "Invalid URL."
         case .noToken: return "You're not signed in."
-        case .unauthorized: return "Your session has expired. Please sign in again."
+        case .unauthorized: return "Invalid username or password. Please try again."
         case .validation: return "Please fix the highlighted fields."
         case .decoding(let e): return "Couldn't read the server's response: \(e.localizedDescription)"
         case .server(let status, let message, _): return "\(message) (\(status))"
@@ -113,20 +113,7 @@ enum ReviewDecision: String, Codable, CaseIterable {
 }
 
 // MARK: - Models
-//
-// NOTE ON SHAPES: several endpoints return the same underlying entity with
-// different fields present depending on context (e.g. a "student" embedded
-// in a facilitator's pending-review list only has {id, firstName, lastName},
-// while /users/:id returns the full row). Rather than one rigid type per
-// endpoint, the shared reference types below (`UserRef`, `SkillRef`) make
-// every field beyond `id` optional so a single type decodes safely across
-// all the endpoints that embed it. Where an endpoint returns a genuinely
-// different top-level document (e.g. the flattened "skill + status" list,
-// or the aggregate portfolio), a dedicated struct matches that exact shape.
 
-/// Full user row (used by register/login/me, /users, facilitator & manager
-/// student lists). Optional fields are optional because some endpoints
-/// (register/login) only return a subset of them.
 struct User: Codable, Identifiable {
     let id: String
     let email: String
@@ -140,15 +127,9 @@ struct User: Codable, Identifiable {
     let isActive: Bool?
     let createdAt: Date?
     let updatedAt: Date?
-    /// Present when the endpoint eager-loads the relation (e.g. GET /auth/me,
-    /// GET /users/:id, GET /facilitator/students).
     let cohort: Cohort?
 }
 
-/// Lightweight reference to a user, used wherever a user is embedded inside
-/// another resource (evidence.student, evidence.reviewer, external
-/// reviewer's assigned students, etc). Only `id`/`firstName`/`lastName` are
-/// guaranteed; everything else varies by endpoint.
 struct UserRef: Codable, Identifiable {
     let id: String
     let firstName: String
@@ -163,15 +144,58 @@ struct AuthResponse: Codable {
     let token: String
 }
 
-struct Cohort: Codable, Identifiable {
+// MARK: - Attachment Model
+
+enum AttachmentType: String, Codable {
+    case photo = "photo"
+    case video = "video"
+    case document = "document"
+    case gitHub = "gitHub"
+    case codeSample = "codeSample"
+}
+
+struct Attachment: Codable, Identifiable {
+    let id: UUID
+    let type: AttachmentType
+    var fileData: Data?
+    var fileName: String?
+    var urlOrText: String?
+    
+    init(type: AttachmentType, fileData: Data? = nil, fileName: String? = nil, urlOrText: String? = nil) {
+        self.id = UUID()
+        self.type = type
+        self.fileData = fileData
+        self.fileName = fileName
+        self.urlOrText = urlOrText
+    }
+}
+
+struct EvidenceAttachment: Codable, Identifiable {
+    let id: String
+    let evidenceId: String
+    let fileName: String
+    let fileSize: Int?
+    let mimeType: String?
+    let fileData: String? // Base64 encoded data
+    let createdAt: Date?
+}
+
+struct Cohort: Codable, Identifiable, Hashable {
     let id: String
     let name: String
     let startDate: Date?
     let endDate: Date?
     let createdAt: Date?
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Cohort, rhs: Cohort) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
-/// Trimmed cohort reference, as returned inside public candidate profiles.
 struct CohortRef: Codable, Identifiable {
     let id: String
     let name: String
@@ -194,8 +218,6 @@ struct Skill: Codable, Identifiable {
     let createdAt: Date?
 }
 
-/// Lightweight skill reference, embedded inside evidence and public profiles.
-/// Some endpoints only include `id`/`name`, so category/description are optional.
 struct SkillRef: Codable, Identifiable {
     let id: String
     let name: String
@@ -203,12 +225,6 @@ struct SkillRef: Codable, Identifiable {
     let description: String?
 }
 
-/// Shape returned by GET /students/:studentId/skills — the full skill
-/// catalog flattened with this student's current status merged in, and by
-/// the `demonstratedSkills`/`essentialSkills` arrays inside a portfolio.
-/// `status` and `studentSkillId` are optional because the public candidate
-/// profile's skill lists omit them (a skill only appears there once it's
-/// already known to be demonstrated).
 struct SkillWithStatus: Codable, Identifiable {
     let id: String
     let name: String
@@ -218,15 +234,16 @@ struct SkillWithStatus: Codable, Identifiable {
     let studentSkillId: String?
 }
 
-/// Unified evidence model. Depending on the endpoint, different optional
-/// fields are populated:
-///  - plain evidence rows (submit/list/review): status, feedback, timestamps
-///  - GET /students/:id/skills/:skillId: adds `reviewerName`
-///  - GET /students/:id/evidence, /evidence/:id: adds `skill`, `reviewer`
-///  - GET /evidence/:id: also adds `student`, `externalReviews`
-///  - facilitator/manager pending-review lists: adds `skill`, `student`
-///    (and omits `status`/`description`)
-///  - public candidate profiles: adds `skill`, `verifiedByFacilitator`
+// MARK: - Essential Skill Rating Response
+
+struct EssentialSkillRatingResponse: Codable {
+    let studentId: String
+    let skillId: String
+    let skillName: String
+    let rating: Int
+    let message: String?
+}
+
 struct Evidence: Codable, Identifiable {
     let id: String
     let studentId: String?
@@ -248,6 +265,7 @@ struct Evidence: Codable, Identifiable {
     let student: UserRef?
     let reviewer: UserRef?
     let externalReviews: [ExternalReview]?
+    let attachments: [EvidenceAttachment]?
 }
 
 struct ExternalReview: Codable, Identifiable {
@@ -275,8 +293,6 @@ struct Achievement: Codable, Identifiable {
     let dateAwarded: Date?
 }
 
-/// The student summary embedded in an authenticated portfolio
-/// (GET /students/:studentId/portfolio) — includes the full Cohort object.
 struct PortfolioStudent: Codable, Identifiable {
     let id: String
     let firstName: String
@@ -286,7 +302,6 @@ struct PortfolioStudent: Codable, Identifiable {
     let cohort: Cohort?
 }
 
-/// GET /students/:studentId/portfolio
 struct Portfolio: Codable {
     let student: PortfolioStudent
     let demonstratedSkills: [SkillWithStatus]
@@ -322,7 +337,6 @@ struct SkillStat: Codable, Identifiable {
     var id: String { skillId }
 }
 
-/// GET /public/candidates — trimmed search result, no skills/evidence.
 struct PublicCandidateSummary: Codable, Identifiable {
     let id: String
     let firstName: String
@@ -332,8 +346,6 @@ struct PublicCandidateSummary: Codable, Identifiable {
     let cohort: CohortRef?
 }
 
-/// The student summary embedded in a public profile — uses the trimmed
-/// CohortRef, unlike the authenticated PortfolioStudent.
 struct PublicProfileStudent: Codable, Identifiable {
     let id: String
     let firstName: String
@@ -343,8 +355,6 @@ struct PublicProfileStudent: Codable, Identifiable {
     let cohort: CohortRef?
 }
 
-/// GET /public/candidates/:id and GET /public/profile/:shareToken share
-/// this exact shape.
 struct PublicProfile: Codable {
     let student: PublicProfileStudent
     let skills: [SkillRef]
@@ -352,6 +362,72 @@ struct PublicProfile: Codable {
     let evidence: [Evidence]
     let projects: [Project]
     let achievements: [Achievement]
+}
+
+// MARK: - Weekly Status Report Models (Add to ApiService.swift)
+
+struct WeeklyStatusEntry: Codable, Identifiable {
+    let id: String
+    let studentId: String
+    let date: Date
+    let boldVoiceScore: Int
+    let book: SwiftBook
+    let section: String
+    let createdAt: Date?
+    let updatedAt: Date?
+}
+
+enum SwiftBook: String, Codable, CaseIterable, Identifiable {
+    case fundamentals = "Swift Fundamentals"
+    case explorations = "Swift Explorations"
+    
+    var id: String { self.rawValue }
+    
+    var shortName: String {
+        switch self {
+        case .fundamentals: return "Fundamentals"
+        case .explorations: return "Explorations"
+        }
+    }
+}
+
+// MARK: - Weekly Status Endpoints (Add to ApiService extension)
+
+extension ApiService {
+    
+    // MARK: - Weekly Status Reports
+
+    func getWeeklyReports() async throws -> [WeeklyStatusEntry] {
+        try await request(.GET, "/students/me/weekly-reports")
+    }
+
+    func createWeeklyReport(
+        date: Date,
+        boldVoiceScore: Int,
+        book: SwiftBook,
+        section: String
+    ) async throws -> WeeklyStatusEntry {
+        struct CreateBody: Encodable {
+            let date: String
+            let boldVoiceScore: Int
+            let book: String
+            let section: String
+        }
+        
+        let dateFormatter = ISO8601DateFormatter()
+        let body = CreateBody(
+            date: dateFormatter.string(from: date),
+            boldVoiceScore: boldVoiceScore,
+            book: book.rawValue,
+            section: section
+        )
+        
+        return try await request(.POST, "/students/me/weekly-reports", body: body)
+    }
+
+    func deleteWeeklyReport(id: String) async throws {
+        try await requestVoid(.DELETE, "/students/me/weekly-reports/\(id)")
+    }
 }
 
 // MARK: - Token storage
@@ -426,14 +502,8 @@ actor ApiService {
     private init(baseURL: URL = APIConfig.baseURL, session: URLSession = .shared) {
         self.baseURL = baseURL
         self.session = session
-
-        // IMPORTANT: the API's request bodies and response fields are all
-        // camelCase (e.g. "firstName", "skillId", "attachmentUrl") — do NOT
-        // add .convertToSnakeCase here. Doing so silently renames every
-        // outgoing field (firstName -> first_name) and the server will
-        // reject or ignore it.
         self.encoder = JSONEncoder()
-
+        
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         self.decoder = decoder
@@ -514,6 +584,71 @@ actor ApiService {
         } catch {
             throw APIError.transport(error)
         }
+    }
+    
+    // In ApiService.swift
+    func submitEvidenceWithFiles(
+        studentId: String,
+        skillId: String,
+        type: EvidenceType,
+        title: String,
+        description: String?,
+        attachmentFiles: [(data: Data, fileName: String, mimeType: String)] = [],
+        githubUrl: String? = nil,
+        videoUrl: String? = nil
+    ) async throws -> Evidence {
+        
+        // First, submit the evidence metadata
+        let body = SubmitEvidenceBody(
+            skillId: skillId,
+            type: type,
+            title: title,
+            description: description,
+            attachmentUrl: nil,
+            githubUrl: githubUrl,
+            videoUrl: videoUrl
+        )
+        
+        let evidence = try await submitEvidence(studentId: studentId, body)
+        
+        // Then upload each file attachment
+        for file in attachmentFiles {
+            // Create multipart form data
+            let boundary = UUID().uuidString
+            var request = URLRequest(url: baseURL.appendingPathComponent("/students/\(studentId)/evidence/\(evidence.id)/attachments"))
+            request.httpMethod = "POST"
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            
+            if let token = TokenStore.shared.current() {
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            }
+            
+            var body = Data()
+            
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(file.fileName)\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: \(file.mimeType)\r\n\r\n".data(using: .utf8)!)
+            body.append(file.data)
+            body.append("\r\n".data(using: .utf8)!)
+            
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
+            body.append("attachment".data(using: .utf8)!)
+            body.append("\r\n".data(using: .utf8)!)
+            
+            body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+            
+            request.httpBody = body
+            
+            let (_, response) = try await session.data(for: request)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            
+            guard (200..<300).contains(status) else {
+                throw APIError.server(status: status, message: "Upload failed", details: nil)
+            }
+        }
+        
+        return evidence
     }
 
     // MARK: - Auth
@@ -633,7 +768,6 @@ actor ApiService {
 
     // MARK: - Student Workflow
 
-    /// Full skill catalog merged with this student's status on each skill.
     func studentSkills(studentId: String) async throws -> [SkillWithStatus] {
         try await request(.GET, "/students/\(studentId)/skills")
     }
@@ -720,13 +854,46 @@ actor ApiService {
     }
 
     // MARK: - Facilitator Dashboard
-
+    
     func facilitatorStudents() async throws -> [User] {
         try await request(.GET, "/facilitator/students")
     }
-
+    
     func facilitatorPendingReviews() async throws -> [Evidence] {
         try await request(.GET, "/facilitator/reviews/pending")
+    }
+    
+    // MARK: - Facilitator Student Management
+    
+    func facilitatorStudentPortfolio(studentId: String) async throws -> Portfolio {
+        try await request(.GET, "/facilitator/students/\(studentId)/portfolio")
+    }
+    
+    func facilitatorStudentSkills(studentId: String) async throws -> [SkillWithStatus] {
+        try await request(.GET, "/facilitator/students/\(studentId)/skills")
+    }
+    
+    func facilitatorStudentEvidence(studentId: String) async throws -> [Evidence] {
+        try await request(.GET, "/facilitator/students/\(studentId)/evidence")
+    }
+    
+    func facilitatorStudentProjects(studentId: String) async throws -> [Project] {
+        try await request(.GET, "/facilitator/students/\(studentId)/projects")
+    }
+    
+    func facilitatorStudentAchievements(studentId: String) async throws -> [Achievement] {
+        try await request(.GET, "/facilitator/students/\(studentId)/achievements")
+    }
+    
+    // MARK: - Essential Skill Ratings
+    
+    func rateEssentialSkill(studentId: String, skillName: String, rating: Int) async throws -> EssentialSkillRatingResponse {
+        struct RatingBody: Encodable {
+            let skillName: String
+            let rating: Int
+        }
+        let body = RatingBody(skillName: skillName, rating: rating)
+        return try await request(.POST, "/students/\(studentId)/essential-skills/rate", body: body)
     }
 
     // MARK: - Manager Dashboard
@@ -799,4 +966,63 @@ private struct AnyEncodable: Encodable {
     func encode(to encoder: Encoder) throws {
         try encodeFunc(encoder)
     }
+}
+// MARK: - File Upload Support (Add to ApiService.swift)
+
+extension ApiService {
+    
+    // MARK: - File Upload
+    
+    func uploadEvidenceAttachment(
+        studentId: String,
+        evidenceId: String,
+        fileData: Data,
+        fileName: String,
+        mimeType: String
+    ) async throws -> [String: Any] {
+        
+        // Create multipart form data
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: baseURL.appendingPathComponent("/students/\(studentId)/evidence/\(evidenceId)/attachments"))
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        if let token = TokenStore.shared.current() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        var body = Data()
+        
+        // Add file data
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        body.append(fileData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add evidence type
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
+        body.append("attachment".data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            
+            guard (200..<300).contains(status) else {
+                throw APIError.server(status: status, message: "Upload failed", details: nil)
+            }
+            
+            let result = try JSONDecoder().decode([String: AnyDecodableValue].self, from: data)
+            return result.mapValues { $0.value as Any }
+        } catch {
+            throw APIError.transport(error)
+        }
+    }
+    
 }

@@ -2,14 +2,6 @@
 //  SkillDetailView.swift
 //  Matter Tracker
 //
-//  Created by admin on 5/9/2026.
-//
-
-
-//
-//  SkillDetailView.swift
-//  Matter Tracker
-//
 //  Created by Mthusi on 5/9/2026.
 //
 
@@ -34,25 +26,7 @@ struct SkillDetailView: View {
     
     var body: some View {
         ZStack {
-            // Background
-            Color.matterNavy
-                .ignoresSafeArea()
-            
-            // Decorative gradient
-            VStack {
-                Circle()
-                    .fill(Color.matterOrange.opacity(0.08))
-                    .frame(width: 300, height: 300)
-                    .offset(x: 150, y: -100)
-                
-                Spacer()
-                
-                Circle()
-                    .fill(Color.matterOrange.opacity(0.05))
-                    .frame(width: 200, height: 200)
-                    .offset(x: -120, y: 100)
-            }
-            .ignoresSafeArea()
+            Color.matterNavy.ignoresSafeArea()
             
             if isLoading && !isRefreshing {
                 loadingView
@@ -61,7 +35,6 @@ struct SkillDetailView: View {
             } else if let detail = skillDetail {
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Skill Overview Card
                         SkillOverviewCard(
                             skillName: skillName,
                             skillCategory: skillCategory,
@@ -69,7 +42,6 @@ struct SkillDetailView: View {
                             status: detail.status
                         )
                         
-                        // Evidence Section
                         if detail.evidence.isEmpty {
                             emptyEvidenceView
                         } else {
@@ -296,7 +268,7 @@ struct SkillOverviewCard: View {
                 
                 Spacer()
                 
-                StatusBadge(status: status)
+                SkillStatusBadge(status: status)
             }
         }
         .padding(16)
@@ -309,7 +281,140 @@ struct SkillOverviewCard: View {
         .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         .padding(.horizontal, 16)
     }
-   
+}
+
+// MARK: - Evidence Card View
+
+struct EvidenceCardView: View {
+    let evidence: Evidence
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "doc.text.fill")
+                    .foregroundColor(.matterOrange)
+                    .font(.title3)
+                
+                Text(evidence.title)
+                    .font(.headline)
+                    .foregroundColor(.matterNavy)
+                
+                Spacer()
+                
+                EvidenceStatusBadge(status: evidence.status ?? .pending_review)
+            }
+            
+            if let description = evidence.description, !description.isEmpty {
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+            
+            HStack {
+                Label(evidence.type.rawValue.replacingOccurrences(of: "_", with: " ").capitalized,
+                      systemImage: "tag")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                if let submittedAt = evidence.submittedAt {
+                    Label(submittedAt.formatted(date: .abbreviated, time: .omitted),
+                          systemImage: "calendar")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // Links
+            if evidence.attachmentUrl != nil || evidence.githubUrl != nil || evidence.videoUrl != nil {
+                HStack(spacing: 12) {
+                    if let url = evidence.attachmentUrl, let urlObj = URL(string: url) {
+                        Link(destination: urlObj) {
+                            Label("Attachment", systemImage: "paperclip")
+                                .font(.caption2)
+                                .foregroundColor(.matterOrange)
+                        }
+                    }
+                    if let url = evidence.githubUrl, let urlObj = URL(string: url) {
+                        Link(destination: urlObj) {
+                            Label("GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                                .font(.caption2)
+                                .foregroundColor(.matterOrange)
+                        }
+                    }
+                    if let url = evidence.videoUrl, let urlObj = URL(string: url) {
+                        Link(destination: urlObj) {
+                            Label("Video", systemImage: "video")
+                                .font(.caption2)
+                                .foregroundColor(.matterOrange)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.matterNavy.opacity(0.06), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+        .padding(.horizontal, 16)
+    }
+}
+
+// MARK: - Status Badges
+
+struct SkillStatusBadge: View {
+    let status: SkillStatus
+    
+    var body: some View {
+        Text(status.rawValue.replacingOccurrences(of: "_", with: " ").capitalized)
+            .font(.caption2)
+            .fontWeight(.semibold)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 3)
+            .background(statusColor.opacity(0.15))
+            .foregroundColor(statusColor)
+            .clipShape(Capsule())
+    }
+    
+    private var statusColor: Color {
+        switch status {
+        case .not_started: return .gray
+        case .in_progress: return .blue
+        case .pending_review: return .orange
+        case .demonstrated: return .green
+        case .needs_more_evidence: return .red
+        }
+    }
+}
+
+struct EvidenceStatusBadge: View {
+    let status: EvidenceStatus
+    
+    var body: some View {
+        Text(status.rawValue.replacingOccurrences(of: "_", with: " ").capitalized)
+            .font(.caption2)
+            .fontWeight(.semibold)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 3)
+            .background(statusColor.opacity(0.15))
+            .foregroundColor(statusColor)
+            .clipShape(Capsule())
+    }
+    
+    private var statusColor: Color {
+        switch status {
+        case .pending_review: return .orange
+        case .approved: return .green
+        case .rejected: return .red
+        case .more_evidence_needed: return .yellow
+        }
+    }
 }
 
 // MARK: - Preview
@@ -323,5 +428,3 @@ struct SkillOverviewCard: View {
         )
     }
 }
-
-

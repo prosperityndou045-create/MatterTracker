@@ -377,53 +377,6 @@ struct EvidenceRow: View {
         .padding(.vertical, 4)
     }
 }
-// MARK: - Status Badge Component
-
-struct EvidenceStatusBadge: View {
-    private let text: String
-    private let color: Color
-    
-    // For SkillStatus
-    init(status: SkillStatus) {
-        self.text = status.rawValue.replacingOccurrences(of: "_", with: " ").capitalized
-        self.color = Self.colorForSkillStatus(status)
-    }
-    
-    // For EvidenceStatus
-    init(status: EvidenceStatus) {
-        self.text = status.rawValue.replacingOccurrences(of: "_", with: " ").capitalized
-        self.color = Self.colorForEvidenceStatus(status)
-    }
-    
-    var body: some View {
-        Text(text)
-            .font(.caption.bold())
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.15))
-            .foregroundColor(color)
-            .cornerRadius(8)
-    }
-    
-    private static func colorForSkillStatus(_ status: SkillStatus) -> Color {
-        switch status {
-        case .not_started: return .gray
-        case .in_progress: return .blue
-        case .pending_review: return .orange
-        case .demonstrated: return .green
-        case .needs_more_evidence: return .red
-        }
-    }
-    
-    private static func colorForEvidenceStatus(_ status: EvidenceStatus) -> Color {
-        switch status {
-        case .pending_review: return .orange
-        case .approved: return .green
-        case .rejected: return .red
-        case .more_evidence_needed: return .yellow
-        }
-    }
-}
 
 // MARK: - Evidence Detail Sheet
 

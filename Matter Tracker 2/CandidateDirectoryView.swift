@@ -613,58 +613,6 @@ struct EvidenceSectionView: View {
     }
 }
 
-struct EvidenceCardView: View {
-    let evidence: Evidence
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Image(systemName: "doc.circle.fill")
-                    .foregroundColor(.matterOrange)
-                Text(evidence.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.matterNavy)
-                Spacer()
-                if evidence.verifiedByFacilitator == true {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(.matterOrange)
-                        .font(.caption)
-                }
-            }
-            
-            if let description = evidence.description, !description.isEmpty {
-                Text(description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-            
-            HStack {
-                Label(
-                    evidence.type.rawValue.replacingOccurrences(of: "_", with: " ").capitalized,
-                    systemImage: "tag"
-                )
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                
-                if let submittedAt = evidence.submittedAt {
-                    Spacer()
-                    Label(
-                        submittedAt.formatted(date: .abbreviated, time: .omitted),
-                        systemImage: "calendar"
-                    )
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                }
-            }
-        }
-        .padding(12)
-        .background(Color.matterNavy.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-}
-
 // MARK: - Projects Section View
 
 struct ProjectsSectionView: View {

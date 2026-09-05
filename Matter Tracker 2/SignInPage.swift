@@ -160,19 +160,21 @@ struct SignInPage: View {
                                             .foregroundColor(.white.opacity(0.6))
                                     }
 
-                                        if isPasswordVisible {
-                                            TextField(
-                                                "",
-                                                text: $password,
-                                                prompt: Text("Enter password")
-                                            )
-                                        } else {
-                                            SecureField(
-                                                "",
-                                                text: $password,
-                                                prompt: Text("Enter password")
-                                            )
-                                        }
+                                    if isPasswordVisible {
+                                        TextField(
+                                            "",
+                                            text: $password,
+                                            prompt: Text("Enter password").foregroundColor(.gray)
+                                        )
+                                        .foregroundColor(.white)
+                                    } else {
+                                        SecureField(
+                                            "",
+                                            text: $password,
+                                            prompt: Text("Enter password").foregroundColor(.gray)
+                                        )
+                                        .foregroundColor(.white)
+                                    }
                                 }
                                 .padding(.horizontal, 14)
                                 .frame(height: 50)

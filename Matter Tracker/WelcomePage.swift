@@ -14,14 +14,14 @@ extension Color {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .replacingOccurrences(of: "#", with: "")
         )
-
+        
         var rgb: UInt64 = 0
         scanner.scanHexInt64(&rgb)
-
+        
         let r = Double((rgb & 0xFF0000) >> 16) / 255.0
         let g = Double((rgb & 0x00FF00) >> 8) / 255.0
         let b = Double(rgb & 0x0000FF) / 255.0
-
+        
         self.init(red: r, green: g, blue: b)
     }
 }
@@ -130,7 +130,7 @@ struct WelcomePage: View {
                 // Tagline appears second
                 withAnimation(
                     .easeOut(duration: 0.7)
-                        .delay(0.25)
+                    .delay(0.25)
                 ) {
                     showTagline = true
                 }
@@ -138,7 +138,7 @@ struct WelcomePage: View {
                 // Description appears third
                 withAnimation(
                     .easeOut(duration: 0.7)
-                        .delay(0.45)
+                    .delay(0.45)
                 ) {
                     showDescription = true
                 }
@@ -146,7 +146,7 @@ struct WelcomePage: View {
                 // Button appears last
                 withAnimation(
                     .easeOut(duration: 0.8)
-                        .delay(0.7)
+                    .delay(0.7)
                 ) {
                     showButton = true
                 }
@@ -154,7 +154,7 @@ struct WelcomePage: View {
                 // Moving arrow
                 withAnimation(
                     .easeInOut(duration: 0.8)
-                        .repeatForever(autoreverses: true)
+                    .repeatForever(autoreverses: true)
                 ) {
                     arrowMoving = true
                 }

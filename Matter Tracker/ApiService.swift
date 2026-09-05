@@ -85,6 +85,8 @@ private struct Error422Body: Decodable {
     let details: ZodFlattenDetails?
 }
 
+// MARK: - Enums (raw values must match the Postgres enum strings exactly)
+
 enum UserRole: String, Codable, CaseIterable {
     case student, facilitator, manager, external_reviewer
 }
@@ -110,6 +112,21 @@ enum ReviewDecision: String, Codable, CaseIterable {
     case approve, reject, more_evidence
 }
 
+// MARK: - Models
+//
+// NOTE ON SHAPES: several endpoints return the same underlying entity with
+// different fields present depending on context (e.g. a "student" embedded
+// in a facilitator's pending-review list only has {id, firstName, lastName},
+// while /users/:id returns the full row). Rather than one rigid type per
+// endpoint, the shared reference types below (`UserRef`, `SkillRef`) make
+// every field beyond `id` optional so a single type decodes safely across
+// all the endpoints that embed it. Where an endpoint returns a genuinely
+// different top-level document (e.g. the flattened "skill + status" list,
+// or the aggregate portfolio), a dedicated struct matches that exact shape.
+
+/// Full user row (used by register/login/me, /users, facilitator & manager
+/// student lists). Optional fields are optional because some endpoints
+/// (register/login) only return a subset of them.
 struct User: Codable, Identifiable {
     let id: String
     let email: String
@@ -123,6 +140,22 @@ struct User: Codable, Identifiable {
     let isActive: Bool?
     let createdAt: Date?
     let updatedAt: Date?
+    /// Present when the endpoint eager-loads the relation (e.g. GET /auth/me,
+    /// GET /users/:id, GET /facilitator/students).
+    let cohort: Cohort?
+}
+
+/// Lightweight reference to a user, used wherever a user is embedded inside
+/// another resource (evidence.student, evidence.reviewer, external
+/// reviewer's assigned students, etc). Only `id`/`firstName`/`lastName` are
+/// guaranteed; everything else varies by endpoint.
+struct UserRef: Codable, Identifiable {
+    let id: String
+    let firstName: String
+    let lastName: String
+    let email: String?
+    let role: UserRole?
+    let bio: String?
 }
 
 struct AuthResponse: Codable {
@@ -138,11 +171,18 @@ struct Cohort: Codable, Identifiable {
     let createdAt: Date?
 }
 
+/// Trimmed cohort reference, as returned inside public candidate profiles.
+struct CohortRef: Codable, Identifiable {
+    let id: String
+    let name: String
+}
+
 struct CohortDetail: Codable, Identifiable {
     let id: String
     let name: String
     let startDate: Date?
     let endDate: Date?
+    let createdAt: Date?
     let students: [User]?
 }
 
@@ -151,32 +191,62 @@ struct Skill: Codable, Identifiable {
     let name: String
     let category: SkillCategory
     let description: String?
+    let createdAt: Date?
 }
 
-struct StudentSkill: Codable, Identifiable {
+/// Lightweight skill reference, embedded inside evidence and public profiles.
+/// Some endpoints only include `id`/`name`, so category/description are optional.
+struct SkillRef: Codable, Identifiable {
     let id: String
-    let studentId: String
-    let skillId: String
-    let status: SkillStatus
-    let updatedAt: Date?
-    let skill: Skill?
+    let name: String
+    let category: SkillCategory?
+    let description: String?
 }
 
+/// Shape returned by GET /students/:studentId/skills — the full skill
+/// catalog flattened with this student's current status merged in, and by
+/// the `demonstratedSkills`/`essentialSkills` arrays inside a portfolio.
+/// `status` and `studentSkillId` are optional because the public candidate
+/// profile's skill lists omit them (a skill only appears there once it's
+/// already known to be demonstrated).
+struct SkillWithStatus: Codable, Identifiable {
+    let id: String
+    let name: String
+    let category: SkillCategory?
+    let description: String?
+    let status: SkillStatus?
+    let studentSkillId: String?
+}
+
+/// Unified evidence model. Depending on the endpoint, different optional
+/// fields are populated:
+///  - plain evidence rows (submit/list/review): status, feedback, timestamps
+///  - GET /students/:id/skills/:skillId: adds `reviewerName`
+///  - GET /students/:id/evidence, /evidence/:id: adds `skill`, `reviewer`
+///  - GET /evidence/:id: also adds `student`, `externalReviews`
+///  - facilitator/manager pending-review lists: adds `skill`, `student`
+///    (and omits `status`/`description`)
+///  - public candidate profiles: adds `skill`, `verifiedByFacilitator`
 struct Evidence: Codable, Identifiable {
     let id: String
-    let studentId: String
-    let skillId: String
+    let studentId: String?
+    let skillId: String?
     let type: EvidenceType
     let title: String
     let description: String?
     let attachmentUrl: String?
     let githubUrl: String?
     let videoUrl: String?
-    let status: EvidenceStatus
+    let status: EvidenceStatus?
     let reviewerId: String?
     let feedback: String?
     let submittedAt: Date?
     let reviewedAt: Date?
+    let reviewerName: String?
+    let verifiedByFacilitator: Bool?
+    let skill: SkillRef?
+    let student: UserRef?
+    let reviewer: UserRef?
     let externalReviews: [ExternalReview]?
 }
 
@@ -190,7 +260,7 @@ struct ExternalReview: Codable, Identifiable {
 
 struct Project: Codable, Identifiable {
     let id: String
-    let studentId: String
+    let studentId: String?
     let name: String
     let description: String?
     let url: String?
@@ -199,18 +269,31 @@ struct Project: Codable, Identifiable {
 
 struct Achievement: Codable, Identifiable {
     let id: String
-    let studentId: String
+    let studentId: String?
     let title: String
     let description: String?
     let dateAwarded: Date?
 }
 
+/// The student summary embedded in an authenticated portfolio
+/// (GET /students/:studentId/portfolio) — includes the full Cohort object.
+struct PortfolioStudent: Codable, Identifiable {
+    let id: String
+    let firstName: String
+    let lastName: String
+    let bio: String?
+    let profilePictureUrl: String?
+    let cohort: Cohort?
+}
+
+/// GET /students/:studentId/portfolio
 struct Portfolio: Codable {
-    let studentId: String?
-    let demonstratedSkills: [StudentSkill]?
-    let approvedEvidence: [Evidence]?
-    let projects: [Project]?
-    let achievements: [Achievement]?
+    let student: PortfolioStudent
+    let demonstratedSkills: [SkillWithStatus]
+    let essentialSkills: [SkillWithStatus]
+    let evidence: [Evidence]
+    let projects: [Project]
+    let achievements: [Achievement]
 }
 
 struct ShareLink: Codable {
@@ -239,17 +322,39 @@ struct SkillStat: Codable, Identifiable {
     var id: String { skillId }
 }
 
-struct PublicCandidate: Codable, Identifiable {
+/// GET /public/candidates — trimmed search result, no skills/evidence.
+struct PublicCandidateSummary: Codable, Identifiable {
     let id: String
     let firstName: String
     let lastName: String
     let bio: String?
     let profilePictureUrl: String?
-    let demonstratedSkills: [StudentSkill]?
-    let approvedEvidence: [Evidence]?
-    let projects: [Project]?
-    let achievements: [Achievement]?
+    let cohort: CohortRef?
 }
+
+/// The student summary embedded in a public profile — uses the trimmed
+/// CohortRef, unlike the authenticated PortfolioStudent.
+struct PublicProfileStudent: Codable, Identifiable {
+    let id: String
+    let firstName: String
+    let lastName: String
+    let bio: String?
+    let profilePictureUrl: String?
+    let cohort: CohortRef?
+}
+
+/// GET /public/candidates/:id and GET /public/profile/:shareToken share
+/// this exact shape.
+struct PublicProfile: Codable {
+    let student: PublicProfileStudent
+    let skills: [SkillRef]
+    let essentialSkills: [SkillRef]
+    let evidence: [Evidence]
+    let projects: [Project]
+    let achievements: [Achievement]
+}
+
+// MARK: - Token storage
 
 final class TokenStore {
     static let shared = TokenStore()
@@ -308,6 +413,8 @@ enum KeychainHelper {
     }
 }
 
+// MARK: - API Service
+
 actor ApiService {
     static let shared = ApiService()
 
@@ -320,12 +427,14 @@ actor ApiService {
         self.baseURL = baseURL
         self.session = session
 
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        self.encoder = encoder
+        // IMPORTANT: the API's request bodies and response fields are all
+        // camelCase (e.g. "firstName", "skillId", "attachmentUrl") — do NOT
+        // add .convertToSnakeCase here. Doing so silently renames every
+        // outgoing field (firstName -> first_name) and the server will
+        // reject or ignore it.
+        self.encoder = JSONEncoder()
 
         let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .iso8601
         self.decoder = decoder
     }
@@ -368,8 +477,6 @@ actor ApiService {
                 throw APIError.unauthorized
             }
 
-            let errEnvelope = try? decoder.decode(APIErrorEnvelope.self, from: data)
-
             if status == 422, let detailsPayload = try? JSONDecoder().decode(APIErrorEnvelope422.self, from: data) {
                 throw APIError.validation(
                     fieldErrors: detailsPayload.error.details?.fieldErrors ?? [:],
@@ -377,7 +484,7 @@ actor ApiService {
                 )
             }
 
-            if let errEnvelope {
+            if let errEnvelope = try? decoder.decode(APIErrorEnvelope.self, from: data) {
                 throw APIError.server(status: status, message: errEnvelope.error.message, details: errEnvelope.error.details)
             }
             throw APIError.server(status: status, message: "Request failed", details: nil)
@@ -526,11 +633,18 @@ actor ApiService {
 
     // MARK: - Student Workflow
 
-    func studentSkills(studentId: String) async throws -> [StudentSkill] {
+    /// Full skill catalog merged with this student's status on each skill.
+    func studentSkills(studentId: String) async throws -> [SkillWithStatus] {
         try await request(.GET, "/students/\(studentId)/skills")
     }
 
-    func studentSkill(studentId: String, skillId: String) async throws -> StudentSkill {
+    struct SkillDetailResponse: Decodable {
+        let skill: Skill
+        let status: SkillStatus
+        let evidence: [Evidence]
+    }
+
+    func studentSkill(studentId: String, skillId: String) async throws -> SkillDetailResponse {
         try await request(.GET, "/students/\(studentId)/skills/\(skillId)")
     }
 
@@ -636,7 +750,7 @@ actor ApiService {
 
     // MARK: - External Reviewer Workflow
 
-    func externalStudents() async throws -> [User] {
+    func externalStudents() async throws -> [UserRef] {
         try await request(.GET, "/external/students")
     }
 
@@ -656,7 +770,7 @@ actor ApiService {
 
     // MARK: - Public / Guest / Employer Workflow
 
-    func publicCandidates(name: String? = nil, skill: String? = nil, cohortId: String? = nil) async throws -> [PublicCandidate] {
+    func publicCandidates(name: String? = nil, skill: String? = nil, cohortId: String? = nil) async throws -> [PublicCandidateSummary] {
         var query: [String: String] = [:]
         if let name { query["name"] = name }
         if let skill { query["skill"] = skill }
@@ -664,11 +778,11 @@ actor ApiService {
         return try await request(.GET, "/public/candidates", query: query.isEmpty ? nil : query, auth: false)
     }
 
-    func publicCandidate(id: String) async throws -> PublicCandidate {
+    func publicCandidate(id: String) async throws -> PublicProfile {
         try await request(.GET, "/public/candidates/\(id)", auth: false)
     }
 
-    func publicProfile(shareToken: String) async throws -> PublicCandidate {
+    func publicProfile(shareToken: String) async throws -> PublicProfile {
         try await request(.GET, "/public/profile/\(shareToken)", auth: false)
     }
 }

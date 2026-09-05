@@ -15,7 +15,7 @@ struct ManagerSkillsView: View {
     @State private var isRefreshing = false
     @State private var errorMessage: String?
     @State private var selectedSkill: SkillStat?
-    @State private var showingSkillDetail = false
+    //@State private var showingSkillDetail = false
     @State private var searchText = ""
     
     private var allSkills: [SkillStat] {
@@ -49,7 +49,7 @@ struct ManagerSkillsView: View {
                                 type: .demonstrated,
                                 onTap: {
                                     selectedSkill = skill
-                                    showingSkillDetail = true
+                                    //showingSkillDetail = true
                                 }
                             )
                         }
@@ -76,7 +76,7 @@ struct ManagerSkillsView: View {
                                 type: .gap,
                                 onTap: {
                                     selectedSkill = skill
-                                    showingSkillDetail = true
+                                   // showingSkillDetail = true
                                 }
                             )
                         }
@@ -109,15 +109,14 @@ struct ManagerSkillsView: View {
         .task {
             await loadSkills()
         }
-        .sheet(isPresented: $showingSkillDetail) {
-            if let skill = selectedSkill {
+        .sheet(item: $selectedSkill) {skill in
                 ManagerSkillDetailSheet(
                     skill: skill,
                     cohortId: selectedCohortId
                 )
             }
         }
-    }
+    
     
     // MARK: - View Components
     

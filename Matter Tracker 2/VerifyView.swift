@@ -207,12 +207,12 @@ struct VerificationResultView: View {
                                 .font(.system(size: 60))
                                 .foregroundColor(result.isValid ? .green : .red)
                             
-                            Text(result.isValid ? "✓ Verified" : "✗ Not Verified")
+                            Text(result.isValid ? "Verified" : "Not Verified")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .foregroundColor(result.isValid ? .green : .red)
                             
-                            Text(result.isValid ? "This profile ID is valid." : result.errorMessage ?? "Profile not found.")
+                            Text(result.isValid ? "This profile ID is valid." : "Profile not found.")
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.7))
                                 .multilineTextAlignment(.center)

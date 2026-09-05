@@ -4,6 +4,7 @@
 //
 //  Created by Prosperity on 4/9/2026.
 //
+
 import SwiftUI
 
 struct AssessmentView: View {
@@ -14,8 +15,6 @@ struct AssessmentView: View {
     @State private var decision = ""
     @State private var feedback = ""
     @State private var showConfirmation = false
-
-    // Controls navigation to the complete screen
     @State private var assessmentCompleted = false
 
     var body: some View {
@@ -23,7 +22,6 @@ struct AssessmentView: View {
         Form {
 
             // MARK: - Evidence
-
             Section("Evidence") {
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -59,14 +57,10 @@ struct AssessmentView: View {
             }
 
             // MARK: - Assessment
-
             Section("Assessment") {
 
-                // Approve Evidence
                 Button {
-
                     decision = "Approved"
-
                 } label: {
 
                     HStack {
@@ -79,18 +73,14 @@ struct AssessmentView: View {
                         Spacer()
 
                         if decision == "Approved" {
-
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
                         }
                     }
                 }
 
-                // Request Changes
                 Button {
-
                     decision = "Changes Required"
-
                 } label: {
 
                     HStack {
@@ -103,7 +93,6 @@ struct AssessmentView: View {
                         Spacer()
 
                         if decision == "Changes Required" {
-
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.orange)
                         }
@@ -112,7 +101,6 @@ struct AssessmentView: View {
             }
 
             // MARK: - Selected Decision
-
             if !decision.isEmpty {
 
                 Section("Selected Decision") {
@@ -120,14 +108,15 @@ struct AssessmentView: View {
                     HStack {
 
                         Image(
-                            systemName: decision == "Approved"
+                            systemName:
+                                decision == "Approved"
                                 ? "checkmark.circle.fill"
                                 : "arrow.clockwise.circle.fill"
                         )
                         .foregroundStyle(
                             decision == "Approved"
-                                ? .green
-                                : .orange
+                            ? .green
+                            : .orange
                         )
 
                         Text(decision)
@@ -139,7 +128,6 @@ struct AssessmentView: View {
             }
 
             // MARK: - Facilitator Feedback
-
             Section("Facilitator Feedback") {
 
                 TextEditor(text: $feedback)
@@ -147,20 +135,18 @@ struct AssessmentView: View {
 
                 Text(
                     decision == "Changes Required"
-                        ? "Explain what the student needs to improve or resubmit."
-                        : "Explain what the student did well and provide any additional feedback."
+                    ? "Explain what the student needs to improve or resubmit."
+                    : "Explain what the student did well and provide any additional feedback."
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
 
             // MARK: - Submit Assessment
-
             Section {
 
                 Button {
 
-                    // Show confirmation alert
                     showConfirmation = true
 
                 } label: {
@@ -171,25 +157,24 @@ struct AssessmentView: View {
                 }
                 .disabled(
                     decision.isEmpty ||
-                    feedback.trimmingCharacters(
-                        in: .whitespacesAndNewlines
-                    ).isEmpty
+                    feedback
+                        .trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        )
+                        .isEmpty
                 )
             }
         }
+
         .navigationTitle("Assessment")
 
         // MARK: - Confirmation Alert
-
         .alert(
             "Assessment Submitted",
             isPresented: $showConfirmation
         ) {
 
             Button("OK") {
-
-                // After the facilitator presses OK,
-                // move to the Assessment Complete page.
                 assessmentCompleted = true
             }
 
@@ -200,9 +185,10 @@ struct AssessmentView: View {
             )
         }
 
-        // MARK: - Navigation to Complete Page
-
-        .navigationDestination(isPresented: $assessmentCompleted) {
+        // MARK: - Assessment Complete
+        .navigationDestination(
+            isPresented: $assessmentCompleted
+        ) {
 
             AssessmentCompleteView(
                 decision: decision,
@@ -212,7 +198,6 @@ struct AssessmentView: View {
     }
 
     // MARK: - Evidence Type Icon
-
     private func iconForType(_ type: String) -> String {
 
         switch type.lowercased() {

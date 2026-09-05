@@ -3,13 +3,13 @@
 //  Matter Tracker
 //
 //  Created by Prosperity on 5/9/2026.
-//
+
 
 import SwiftUI
 
-// MARK: - Facilitator Dashboard
-
 struct FacilitatorDashboardView: View {
+
+    @State private var showSettings = false
 
     var body: some View {
 
@@ -20,9 +20,7 @@ struct FacilitatorDashboardView: View {
                 VStack(alignment: .leading, spacing: 20) {
 
                     Text("Monitor and support your assigned students.")
-                        .foregroundStyle(.gray)
-
-                    // MARK: - Summary Cards
+                        .foregroundStyle(.secondary)
 
                     LazyVGrid(
                         columns: [
@@ -57,20 +55,14 @@ struct FacilitatorDashboardView: View {
                         )
                     }
 
-                    // MARK: - Quick Actions
-
                     VStack(alignment: .leading, spacing: 12) {
 
                         Text("Quick Actions")
                             .font(.title2)
                             .fontWeight(.bold)
 
-                        // MARK: Assigned Students
-
                         NavigationLink {
-
                             AssignedStudentsView()
-
                         } label: {
 
                             DashboardRow(
@@ -79,11 +71,9 @@ struct FacilitatorDashboardView: View {
                                 icon: "person.2.fill"
                             )
                         }
-
-                        // MARK: Pending Evidence
+                        .buttonStyle(.plain)
 
                         NavigationLink {
-
                             EvidenceReviewView(
                                 skill: Skill(
                                     name: "Communication Presentation",
@@ -91,7 +81,6 @@ struct FacilitatorDashboardView: View {
                                     status: "Pending Review"
                                 )
                             )
-
                         } label: {
 
                             DashboardRow(
@@ -100,11 +89,30 @@ struct FacilitatorDashboardView: View {
                                 icon: "doc.text.magnifyingglass"
                             )
                         }
+                        .buttonStyle(.plain)
+
+                        Button {
+
+                            showSettings = true
+
+                        } label: {
+
+                            DashboardRow(
+                                title: "Settings",
+                                subtitle: "Manage your account and app preferences",
+                                icon: "gearshape.fill"
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding()
             }
             .navigationTitle("Facilitator Dashboard")
+        }
+
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView()
         }
     }
 }
@@ -124,13 +132,14 @@ struct DashboardCard: View {
 
             Image(systemName: icon)
                 .font(.title2)
+                .foregroundStyle(.blue)
 
             Text(value)
                 .font(.title)
                 .fontWeight(.bold)
 
             Text(title)
-                .foregroundStyle(.gray)
+                .foregroundStyle(.secondary)
         }
         .frame(
             maxWidth: .infinity,
@@ -157,6 +166,7 @@ struct DashboardRow: View {
 
             Image(systemName: icon)
                 .font(.title2)
+                .foregroundStyle(.blue)
                 .frame(width: 45, height: 45)
                 .background(Color.blue.opacity(0.1))
                 .cornerRadius(10)
@@ -171,13 +181,13 @@ struct DashboardRow: View {
 
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()
 
             Image(systemName: "chevron.right")
-                .foregroundStyle(.gray)
+                .foregroundStyle(.secondary)
         }
         .padding()
         .background(Color(.systemGray6))
@@ -186,8 +196,8 @@ struct DashboardRow: View {
 }
 
 
-// MARK: - Preview
-
 #Preview {
     FacilitatorDashboardView()
 }
+
+

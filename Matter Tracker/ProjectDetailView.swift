@@ -1,28 +1,22 @@
-//
-//  ProjectDetailView.swift
-//  Matter Tracker
-//
-//  Created by admin on 9/4/26.
-//
-
 import SwiftUI
 
 struct ProjectDetailView: View {
+    
     let project: Project
     
     var body: some View {
         ScrollView {
-            
             VStack(
                 alignment: .leading,
                 spacing: 24
             ) {
                 
+                // MARK: - Project Header
+                
                 VStack(
                     alignment: .leading,
                     spacing: 8
                 ) {
-                    
                     Image(
                         systemName: "folder.fill"
                     )
@@ -38,7 +32,7 @@ struct ProjectDetailView: View {
                 
                 Divider()
                 
-                // MARK: Technologies
+                // MARK: - Technologies
                 
                 Text("Technologies")
                     .font(.title2)
@@ -55,6 +49,8 @@ struct ProjectDetailView: View {
                     )
                 }
                 
+                // MARK: - Skills Demonstrated
+                
                 Text("Skills Demonstrated")
                     .font(.title2)
                     .fontWeight(.bold)
@@ -69,7 +65,9 @@ struct ProjectDetailView: View {
                         systemImage: "checkmark.circle"
                     )
                 }
-                        
+                
+                // MARK: - Project Evidence
+                
                 if !project.evidence.isEmpty {
                     
                     Text("Project Evidence")
@@ -79,13 +77,10 @@ struct ProjectDetailView: View {
                     ForEach(project.evidence) { evidence in
                         
                         NavigationLink {
-                            
                             EvidenceDetailView(
                                 evidence: evidence
                             )
-                            
                         } label: {
-                            
                             EvidenceRow(
                                 evidence: evidence
                             )
@@ -94,28 +89,31 @@ struct ProjectDetailView: View {
                     }
                 }
                 
+                // MARK: - Repository
                 
                 if let repositoryURL = project.repositoryURL,
                    let url = URL(string: repositoryURL) {
                     
-                    Link(
-                        destination: url
-                    ) {
-                        
+                    Link(destination: url) {
                         HStack {
-                            
                             Image(
                                 systemName: "chevron.left.forwardslash.chevron.right"
                             )
                             
-                            Text("View Repository")
+                            Text("View GitHub Repository")
+                                .fontWeight(.semibold)
                             
                             Spacer()
+                            
+                            Image(
+                                systemName: "arrow.up.right"
+                            )
+                            .font(.caption)
                         }
                         .padding()
-                        .background(
-                            Color.secondary.opacity(0.08)
-                        )
+                        .frame(maxWidth: .infinity)
+                        .background(Color.black)
+                        .foregroundStyle(.white)
                         .clipShape(
                             RoundedRectangle(
                                 cornerRadius: 12

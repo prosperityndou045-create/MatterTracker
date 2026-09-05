@@ -239,32 +239,47 @@ struct Achievement: Identifiable, Codable {
 //------------------------------------------------------------------
 
 enum MockData {
+    
     // MARK: - Evidence
     
     static let marketMateEvidence = Evidence(
-        title: "MarketMate Inventory App",
+        title: "MarketMate Project",
         description: """
-        A SwiftUI inventory management application developed
-        during the MCRI program.
+        A personal inventory management application demonstrating
+        practical Swift development, application architecture,
+        data management and problem solving.
         """,
         type: .project,
         status: .verified,
-        reviewer: "J. Moyo",
-        reviewerRole: "MCRI Facilitator",
-        attachmentURL: "https://github.com/example/marketmate"
+        reviewer: "Lennon",
+        reviewerRole: "MCRI Facilitator"
+    )
+
+    
+    static let swiftAssessmentEvidence = Evidence(
+        title: "Swift Fundamentals Assessment",
+        description: """
+        Assessment demonstrating understanding of core Swift
+        programming concepts including variables, optionals,
+        collections, control flow, functions, structs and classes.
+        """,
+        type: .assessment,
+        status: .verified,
+        reviewer: "Lennon",
+        reviewerRole: "MCRI Facilitator"
     )
     
     static let loopsEvidence = Evidence(
-        title: "LTC Loops Challenge",
+        title: "Swift Loops Challenge",
         description: """
         Programming challenge demonstrating the use of
         loops and iteration.
         """,
         type: .challenge,
         status: .verified,
-        reviewer: "J. Moyo",
+        reviewer: "Lennon",
         reviewerRole: "MCRI Facilitator",
-        attachmentURL: "https://github.com/example/loops"
+        attachmentURL: "https://github.com/Butjilo01/MARKETMATE-PERSONAL-PROJECT"
     )
     
     static let communicationEvidence = Evidence(
@@ -275,22 +290,51 @@ enum MockData {
         """,
         type: .video,
         status: .verified,
-        reviewer: "J. Moyo",
+        reviewer: "Peggy",
         reviewerRole: "MCRI Facilitator"
     )
     
-    static let githubEvidence = Evidence(
-        title: "GitHub Portfolio Repository",
+    // MARK: - Real GitHub Evidence
+    
+    static let butjiloGitHubEvidence = Evidence(
+        title: "MARKETMATE-PERSONAL-PROJECT",
         description: """
-        Repository containing programming exercises,
-        projects and development work.
+        Public GitHub repository containing Butjilo's MarketMate
+        personal project and development work.
         """,
         type: .github,
         status: .verified,
-        reviewer: "J. Moyo",
+        reviewer: "Faith",
         reviewerRole: "MCRI Facilitator",
-        attachmentURL: "https://github.com/example/portfolio"
+        attachmentURL: "https://github.com/Butjilo01/MARKETMATE-PERSONAL-PROJECT"
     )
+    
+    static let studentTwoGitHubEvidence = Evidence(
+        title: "MCRI.APP",
+        description: """
+        Public GitHub repository containing the student's
+        MCRI application project and development work.
+        """,
+        type: .github,
+        status: .verified,
+        reviewer: "Faith",
+        reviewerRole: "MCRI Facilitator",
+        attachmentURL: "https://github.com/Bongan16/MCRI.APP"
+    )
+    
+    static let studentThreeGitHubEvidence = Evidence(
+        title: "Village Water Monitor",
+        description: """
+        Public GitHub repository containing the Village Water
+        Monitor project and associated development work.
+        """,
+        type: .github,
+        status: .verified,
+        reviewer: "Faith",
+        reviewerRole: "MCRI Facilitator",
+        attachmentURL: "https://github.com/mabungutanatswa2018-create/village-water-monitor"
+    )
+    
     
     // MARK: - Skills
     
@@ -303,7 +347,8 @@ enum MockData {
         programming language.
         """,
         evidence: [
-            marketMateEvidence
+            marketMateEvidence,
+            swiftAssessmentEvidence
         ]
     )
     
@@ -316,22 +361,67 @@ enum MockData {
         programming problems.
         """,
         evidence: [
-            loopsEvidence
+            loopsEvidence,
+            loopsAssessmentEvidence
         ]
     )
     
-    static let githubSkill = Skill(
+    static let loopsAssessmentEvidence = Evidence(
+        title: "Loops & Iteration Assessment",
+        description: """
+        Assessment demonstrating the ability to use for-in and
+        while loops, control iteration and solve programming
+        problems using repetition.
+        """,
+        type: .assessment,
+        status: .verified,
+        reviewer: "Lennon",
+        reviewerRole: "MCRI Facilitator"
+    )
+    
+    // MARK: - GitHub Skills
+    
+    static let butjiloGitHubSkill = Skill(
         name: "Git & GitHub",
         category: .technical,
-        status: .inProgress,
+        status: .demonstrated,
         description: """
-        Ability to use Git and GitHub for source control
-        and collaboration.
+        Ability to use Git and GitHub for source control,
+        repository management and project development.
         """,
         evidence: [
-            githubEvidence
+            butjiloGitHubEvidence
         ]
     )
+    
+    static let studentTwoGitHubSkill = Skill(
+        name: "Git & GitHub",
+        category: .technical,
+        status: .demonstrated,
+        description: """
+        Ability to use Git and GitHub for source control,
+        repository management and project development.
+        """,
+        evidence: [
+            studentTwoGitHubEvidence
+        ]
+    )
+    
+    static let studentThreeGitHubSkill = Skill(
+        name: "Git & GitHub",
+        category: .technical,
+        status: .demonstrated,
+        description: """
+        Ability to use Git and GitHub for source control,
+        repository management and project development.
+        """,
+        evidence: [
+            studentThreeGitHubEvidence
+        ]
+    )
+    
+    
+    // MARK: - Essential Skills
     
     static let communicationSkill = Skill(
         name: "Communication",
@@ -369,13 +459,13 @@ enum MockData {
         ]
     )
     
-    // MARK: - Projects
     
+    // MARK: - Projects
     static let marketMate = Project(
         name: "MarketMate",
         description: """
-        An inventory management application designed
-        to help vendors manage products, stock and sales.
+        An inventory management application designed to help
+        vendors manage products, stock and sales.
         """,
         technologies: [
             "Swift",
@@ -384,14 +474,13 @@ enum MockData {
         ],
         skillsDemonstrated: [
             "Swift",
-            "SwiftUI",
-            "Databases",
-            "Problem Solving"
+            "Problem Solving",
+            "Application Development"
         ],
         evidence: [
             marketMateEvidence
         ],
-        repositoryURL: "https://github.com/example/marketmate"
+        repositoryURL: "https://github.com/Butjilo01/MARKETMATE-PERSONAL-PROJECT"
     )
     
     static let airportPickup = Project(
@@ -411,10 +500,9 @@ enum MockData {
             "MapKit",
             "Problem Solving"
         ],
-        evidence: [
-            marketMateEvidence
-        ]
+        evidence: []
     )
+    
     
     // MARK: - Achievements
     
@@ -433,6 +521,7 @@ enum MockData {
         type: .recognition
     )
     
+    
     // MARK: - Candidates
     
     static let candidateOne = StudentProfile(
@@ -446,7 +535,7 @@ enum MockData {
         skills: [
             swiftSkill,
             loopsSkill,
-            githubSkill,
+            butjiloGitHubSkill,
             communicationSkill,
             teamworkSkill,
             problemSolvingSkill
@@ -471,12 +560,11 @@ enum MockData {
         """,
         skills: [
             loopsSkill,
+            studentTwoGitHubSkill,
             communicationSkill,
             teamworkSkill
         ],
-        projects: [
-            marketMate
-        ],
+        projects: [],
         achievements: [
             mcriRecognition
         ]
@@ -491,13 +579,11 @@ enum MockData {
         and building practical applications.
         """,
         skills: [
-            swiftSkill,
+            studentThreeGitHubSkill,
             communicationSkill,
             problemSolvingSkill
         ],
-        projects: [
-            airportPickup
-        ],
+        projects: [],
         achievements: [
             jamfCertification
         ]
@@ -508,6 +594,7 @@ enum MockData {
         candidateTwo,
         candidateThree
     ]
+    
     
     // MARK: - Skills Framework
     

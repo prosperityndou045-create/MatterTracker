@@ -32,23 +32,22 @@ struct CandidateDirectoryView: View {
     }
     
     private var filteredCandidates: [StudentProfile] {
-        
         candidates.filter { candidate in
             
             let matchesSearch =
-            searchText.isEmpty ||
-            candidate.name.localizedCaseInsensitiveContains(searchText) ||
-            candidate.profileID.localizedCaseInsensitiveContains(searchText)
+                searchText.isEmpty ||
+                candidate.name.localizedCaseInsensitiveContains(searchText) ||
+                candidate.profileID.localizedCaseInsensitiveContains(searchText)
             
             let matchesCohort =
-            selectedCohort == "All" ||
-            candidate.cohort == selectedCohort
+                selectedCohort == "All" ||
+                candidate.cohort == selectedCohort
             
             let matchesSkill =
-            selectedSkill == "All" ||
-            candidate.skills.contains {
-                $0.name == selectedSkill
-            }
+                selectedSkill == "All" ||
+                candidate.skills.contains {
+                    $0.name == selectedSkill
+                }
             
             return matchesSearch &&
             matchesCohort &&
@@ -58,20 +57,9 @@ struct CandidateDirectoryView: View {
     }
     
     var body: some View {
-        
         List {
             
-            // MARK: Search
-            
-            Section {
-                
-                TextField(
-                    "Search by name or profile ID",
-                    text: $searchText
-                )
-            }
-            
-            // MARK: Filters
+            // MARK: - Filters
             
             Section("Filters") {
                 
@@ -79,7 +67,6 @@ struct CandidateDirectoryView: View {
                     "Cohort",
                     selection: $selectedCohort
                 ) {
-                    
                     ForEach(cohorts, id: \.self) { cohort in
                         Text(cohort)
                             .tag(cohort)
@@ -90,7 +77,6 @@ struct CandidateDirectoryView: View {
                     "Skill",
                     selection: $selectedSkill
                 ) {
-                    
                     ForEach(skills, id: \.self) { skill in
                         Text(skill)
                             .tag(skill)
@@ -98,22 +84,18 @@ struct CandidateDirectoryView: View {
                 }
             }
             
-            // MARK: Candidates
+            // MARK: - Candidates
             
             Section(
                 "\(filteredCandidates.count) Candidates"
             ) {
                 
                 ForEach(filteredCandidates) { candidate in
-                    
                     NavigationLink {
-                        
                         CandidateProfileView(
                             profile: candidate
                         )
-                        
                     } label: {
-                        
                         CandidateCard(
                             profile: candidate
                         )
@@ -121,7 +103,6 @@ struct CandidateDirectoryView: View {
                 }
                 
                 if filteredCandidates.isEmpty {
-                    
                     ContentUnavailableView(
                         "No Candidates Found",
                         systemImage: "person.slash",
@@ -135,7 +116,7 @@ struct CandidateDirectoryView: View {
         .navigationTitle("Candidates")
         .searchable(
             text: $searchText,
-            prompt: "Search candidates"
+            prompt: "Search by name or profile ID"
         )
     }
 }
@@ -145,7 +126,6 @@ struct CandidateCard: View {
     let profile: StudentProfile
     
     var body: some View {
-        
         VStack(
             alignment: .leading,
             spacing: 10
@@ -157,7 +137,6 @@ struct CandidateCard: View {
                     alignment: .leading,
                     spacing: 4
                 ) {
-                    
                     Text(profile.name)
                         .font(.headline)
                     
@@ -196,5 +175,13 @@ struct CandidateCard: View {
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 6)
+    }
+}
+
+#Preview {
+    NavigationStack {
+        CandidateDirectoryView(
+            candidates: MockData.candidates
+        )
     }
 }

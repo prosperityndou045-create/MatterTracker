@@ -1,81 +1,67 @@
-//
-//  CandidateProfileView.swift
-//  Matter Tracker
-//
-//  Created by admin on 9/4/26.
-//
 
 import SwiftUI
 
 struct CandidateProfileView: View {
+
     let profile: StudentProfile
+
     var body: some View {
-        
+
         ScrollView {
+
             VStack(
                 alignment: .leading,
                 spacing: 24
             ) {
-                // MARK: Candidate Header
+
+                // MARK: - Candidate Header
+
                 VStack(
                     alignment: .leading,
                     spacing: 8
                 ) {
-                    
-                    HStack {
-                        
-                        VStack(
-                            alignment: .leading,
-                            spacing: 5
-                        ) {
-                            
-                            Text(profile.name)
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                            
-                            Text(profile.cohort)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        VerificationBadge()
-                    }
-                    
+
+                    Text(profile.name)
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+
+                    Text(profile.cohort)
+                        .foregroundStyle(.secondary)
+
                     Text(profile.bio)
                         .foregroundStyle(.secondary)
                         .padding(.top, 5)
-                    
+
                     Text("Profile ID: \(profile.profileID)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
-                // MARK: Progress
-                
+
+                // MARK: - Progress
+
                 VStack(
                     alignment: .leading,
                     spacing: 10
                 ) {
-                    
+
                     HStack {
-                        
+
                         Text("Overall Progress")
                             .fontWeight(.semibold)
-                        
+
                         Spacer()
-                        
+
                         Text("\(profile.completionPercent)%")
                             .fontWeight(.bold)
                     }
-                    
+
                     ProgressView(
                         value: Double(
                             profile.completionPercent
                         ),
                         total: 100
                     )
-                    
+
                     Text(
                         "\(profile.demonstratedCount) of \(profile.skills.count) skills demonstrated"
                     )
@@ -91,49 +77,49 @@ struct CandidateProfileView: View {
                         cornerRadius: 12
                     )
                 )
-                
-                // MARK: Summary
-                
+
+                // MARK: - Summary
+
                 HStack(spacing: 12) {
-                    
+
                     ProfileSummaryCard(
                         value: "\(profile.demonstratedCount)",
                         title: "Skills"
                     )
-                    
+
                     ProfileSummaryCard(
                         value: "\(profile.verifiedEvidenceCount)",
                         title: "Verified Evidence"
                     )
-                    
+
                     ProfileSummaryCard(
                         value: "\(profile.projects.count)",
                         title: "Projects"
                     )
                 }
-                
-                // MARK: Technical Skills
-                
+
+                // MARK: - Technical Skills
+
                 let technicalSkills = profile.skills.filter {
                     $0.category == .technical
                 }
-                
+
                 if !technicalSkills.isEmpty {
-                    
+
                     ProfileSectionTitle(
                         title: "Technical Skills"
                     )
-                    
+
                     ForEach(technicalSkills) { skill in
-                        
+
                         NavigationLink {
-                            
+
                             SkillDetailView(
                                 skill: skill
                             )
-                            
+
                         } label: {
-                            
+
                             SkillRow(
                                 skill: skill
                             )
@@ -141,29 +127,29 @@ struct CandidateProfileView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                
-                // MARK: Essential Skills
-                
+
+                // MARK: - Essential Skills
+
                 let essentialSkills = profile.skills.filter {
                     $0.category == .essential
                 }
-                
+
                 if !essentialSkills.isEmpty {
-                    
+
                     ProfileSectionTitle(
                         title: "Essential Skills"
                     )
-                    
+
                     ForEach(essentialSkills) { skill in
-                        
+
                         NavigationLink {
-                            
+
                             SkillDetailView(
                                 skill: skill
                             )
-                            
+
                         } label: {
-                            
+
                             SkillRow(
                                 skill: skill
                             )
@@ -171,25 +157,25 @@ struct CandidateProfileView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                
-                // MARK: Projects
-                
+
+                // MARK: - Projects
+
                 if !profile.projects.isEmpty {
-                    
+
                     ProfileSectionTitle(
                         title: "Projects"
                     )
-                    
+
                     ForEach(profile.projects) { project in
-                        
+
                         NavigationLink {
-                            
+
                             ProjectDetailView(
                                 project: project
                             )
-                            
+
                         } label: {
-                            
+
                             ProjectCard(
                                 project: project
                             )
@@ -197,53 +183,22 @@ struct CandidateProfileView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                
-                // MARK: Achievements
-                
+
+                // MARK: - Achievements
+
                 if !profile.achievements.isEmpty {
-                    
+
                     ProfileSectionTitle(
                         title: "Achievements"
                     )
-                    
+
                     ForEach(profile.achievements) { achievement in
-                        
+
                         AchievementCard(
                             achievement: achievement
                         )
                     }
                 }
-                
-                // MARK: Verification
-                
-                VStack(
-                    alignment: .leading,
-                    spacing: 10
-                ) {
-                    
-                    Label(
-                        "Public profile verified",
-                        systemImage: "checkmark.seal.fill"
-                    )
-                    .fontWeight(.semibold)
-                    
-                    Text("""
-                    The information displayed here is intended
-                    for public viewing. Private facilitator notes
-                    and non-public evidence are not displayed.
-                    """)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
-                .padding()
-                .background(
-                    Color.secondary.opacity(0.08)
-                )
-                .clipShape(
-                    RoundedRectangle(
-                        cornerRadius: 12
-                    )
-                )
             }
             .padding()
         }
@@ -252,19 +207,21 @@ struct CandidateProfileView: View {
     }
 }
 
+// MARK: - Profile Summary Card
+
 struct ProfileSummaryCard: View {
-    
+
     let value: String
     let title: String
-    
+
     var body: some View {
-        
+
         VStack(spacing: 5) {
-            
+
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
-            
+
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -282,12 +239,14 @@ struct ProfileSummaryCard: View {
     }
 }
 
+// MARK: - Section Title
+
 struct ProfileSectionTitle: View {
-    
+
     let title: String
-    
+
     var body: some View {
-        
+
         Text(title)
             .font(.title2)
             .fontWeight(.bold)
@@ -295,37 +254,45 @@ struct ProfileSectionTitle: View {
     }
 }
 
+// MARK: - Project Card
+
 struct ProjectCard: View {
-    
+
     let project: Project
-    
+
     var body: some View {
-        
+
         VStack(
             alignment: .leading,
             spacing: 8
         ) {
-            
+
             HStack {
-                
-                Image(systemName: "folder.fill")
-                
+
+                Image(
+                    systemName: "folder.fill"
+                )
+
                 Text(project.name)
                     .fontWeight(.semibold)
-                
+
                 Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+
+                Image(
+                    systemName: "chevron.right"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
-            
+
             Text(project.description)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             Text(
-                project.technologies.joined(separator: " • ")
+                project.technologies.joined(
+                    separator: " • "
+                )
             )
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -342,35 +309,39 @@ struct ProjectCard: View {
     }
 }
 
+// MARK: - Achievement Card
+
 struct AchievementCard: View {
-    
+
     let achievement: Achievement
-    
+
     var body: some View {
-        
+
         HStack(spacing: 14) {
-            
-            Image(systemName: "trophy.fill")
-                .font(.title2)
-                .frame(width: 35)
-            
+
+            Image(
+                systemName: "trophy.fill"
+            )
+            .font(.title2)
+            .frame(width: 35)
+
             VStack(
                 alignment: .leading,
                 spacing: 4
             ) {
-                
+
                 Text(achievement.title)
                     .fontWeight(.semibold)
-                
+
                 Text(achievement.description)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 Text(achievement.type.rawValue)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
         }
         .padding()

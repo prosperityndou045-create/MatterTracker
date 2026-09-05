@@ -9,6 +9,31 @@
 import SwiftUI
 
 struct ManagerHomeView: View {
+    @State private var selectedCohort = "All Cohorts"
+
+    let cohorts = [
+        "All Cohorts",
+        "Cohort 1",
+        "Cohort 2",
+        "Cohort 3",
+        "Cohort 4",
+        "Cohort 5",
+        "Cohort 6",
+        "Cohort 7",
+        "Cohort 8"
+    ]
+
+    let cohortData = [
+        "All Cohorts": (students: 57, skills: 121, evidence: 146, pending: 40),
+        "Cohort 1": (students: 4, skills: 10, evidence: 18, pending: 5),
+        "Cohort 2": (students: 8, skills: 15, evidence: 19, pending: 5),
+        "Cohort 3": (students: 10, skills: 15, evidence: 18, pending: 5),
+        "Cohort 4": (students: 13, skills: 28, evidence: 26, pending: 5),
+        "Cohort 5": (students: 4, skills: 14, evidence: 15, pending: 5),
+        "Cohort 6": (students: 2, skills: 18, evidence: 17, pending: 5),
+        "Cohort 7": (students: 9, skills: 15, evidence: 19, pending: 5),
+        "Cohort 8": (students: 8, skills: 16, evidence: 14, pending: 5)
+    ]
     
     var body: some View {
         NavigationStack {
@@ -17,6 +42,9 @@ struct ManagerHomeView: View {
                     
                     // MARK: - Header
                     VStack(alignment: .leading, spacing: 6) {
+                        Text("Manager")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                         Text("Dashboard")
                             .font(.largeTitle)
                             .fontWeight(.bold)
@@ -25,6 +53,23 @@ struct ManagerHomeView: View {
                             .foregroundStyle(.secondary)
                     }
                     
+                    // MARK: - Cohort Selection
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Select Cohort")
+                            .font(.headline)
+
+                        Picker("Cohort", selection: $selectedCohort) {
+                            ForEach(cohorts, id: \.self) { cohort in
+                                Text(cohort)
+                                    .tag(cohort)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                     // MARK: - Overview
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Overview")
@@ -41,25 +86,25 @@ struct ManagerHomeView: View {
                             
                             ManagerStatCard(
                                 title: "Students",
-                                value: "45",
+                                value: "\(cohortData[selectedCohort]?.students ?? 0)",
                                 icon: "person.3.fill"
                             )
                             
                             ManagerStatCard(
                                 title: "Skills Demonstrated",
-                                value: "128",
+                                value: "\(cohortData[selectedCohort]?.skills ?? 0)",
                                 icon: "checkmark.seal.fill"
                             )
                             
                             ManagerStatCard(
                                 title: "Evidence Submitted",
-                                value: "237",
+                                value: "\(cohortData[selectedCohort]?.evidence ?? 0)",
                                 icon: "doc.fill"
                             )
                             
                             ManagerStatCard(
                                 title: "Pending Reviews",
-                                value: "18",
+                                value: "\(cohortData[selectedCohort]?.pending ?? 0)",
                                 icon: "clock.fill"
                             )
                         }
@@ -72,7 +117,7 @@ struct ManagerHomeView: View {
                             .fontWeight(.semibold)
                         
                         NavigationLink {
-                            ManagerStudentsView()
+                            ManagerStudentsView(selectedCohort: selectedCohort)
                         } label: {
                             ManagerMenuCard(
                                 icon: "person.2.fill", title: "View Students",
@@ -80,17 +125,17 @@ struct ManagerHomeView: View {
                             )
                         }
                         
-                        NavigationLink {
-                            ManagerSkillsView()
-                        } label: {
-                            ManagerMenuCard(
-                                icon: "chart.bar.fill", title: "Skills Data",
-                                description: "View the most and least demonstrated skills"
-                            )
-                        }
+//                        NavigationLink {
+//                            ManagerSkillsView(selectedCohort: selectedCohort)
+//                        } label: {
+//                            ManagerMenuCard(
+//                                icon: "chart.bar.fill", title: "Skills Data",
+//                                description: "View the most and least demonstrated skills"
+//                            )
+//                        }
                         
                         NavigationLink {
-                            ManagerEvidenceView()
+                            ManagerEvidenceView(selectedCohort: selectedCohort)
                         } label: {
                             ManagerMenuCard(
                                 icon: "doc.text.fill", title: "Evidence Data",
@@ -106,7 +151,7 @@ struct ManagerHomeView: View {
                             .fontWeight(.semibold)
                         
                         NavigationLink {
-                            ManagerReportsView()
+                            ManagerReportsView(selectedCohort: selectedCohort)
                         } label: {
                             ManagerMenuCard(
                                 icon: "chart.line.uptrend.xyaxis", title: "Generate Reports",
@@ -115,7 +160,7 @@ struct ManagerHomeView: View {
                         }
                         
                         NavigationLink {
-                            ManagerInsightsView()
+                            ManagerInsightsView(selectedCohort: selectedCohort)
                         } label: {
                             ManagerMenuCard(
                                 icon: "lightbulb.fill", title: "Program Insights",
@@ -126,7 +171,7 @@ struct ManagerHomeView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Manager")
+           // .navigationTitle("Manager")
         }
        
     }
